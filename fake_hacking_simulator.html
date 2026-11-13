@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050907">
+<title>Social Media Hacking Simulator — Mac Laurin</title>
+<style>
+:root{--bg:#050907;--panel:#0a1510;--green:#39ff88;--green2:#00c96b;--muted:#8ca99a;--line:#173c2a;--red:#ff6262}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 50% 0%,#0d2a1b 0%,#050907 55%);color:#e7fff0;font-family:Consolas,Monaco,"Courier New",monospace;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(57,255,136,.12) 4px);z-index:0}
+main{position:relative;z-index:1;width:min(940px,94vw);margin:0 auto;padding:30px 0 48px}
+header{text-align:center;margin-bottom:24px}
+.brand{font-size:12px;letter-spacing:4px;color:var(--green);text-transform:uppercase}
+h1{font-size:clamp(25px,5vw,46px);line-height:1.1;margin:12px 0;color:#eafff1;text-shadow:0 0 18px #39ff8860}
+.subtitle{color:var(--muted);font-size:13px}
+.shell{border:1px solid var(--line);background:linear-gradient(145deg,rgba(10,24,16,.97),rgba(4,10,7,.97));box-shadow:0 0 35px #00ff6620,inset 0 0 25px #00ff6608;border-radius:16px;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:8px;padding:13px 17px;background:#0d1c13;border-bottom:1px solid var(--line)}
+.dot{width:9px;height:9px;border-radius:50%;background:#ff6262}.dot:nth-child(2){background:#ffc857}.dot:nth-child(3){background:#39ff88}
+.topbar span{margin-left:auto;color:#7ba88d;font-size:11px}
+.screen{display:none;padding:clamp(20px,5vw,42px);animation:fade .35s ease}.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:11px;color:var(--green);letter-spacing:2px;margin-bottom:12px}
+h2{font-size:clamp(21px,4vw,30px);margin:0 0 14px}
+p{color:#a8c6b4;line-height:1.65;font-size:14px}
+.notice{border:1px solid #8a6b25;background:#241d0c;color:#ffe49a;padding:11px 13px;border-radius:8px;font-size:12px;line-height:1.5;margin:18px 0}
+.btn{border:1px solid var(--green);background:linear-gradient(90deg,#0b3d24,#0d2418);color:#caffdc;padding:14px 20px;border-radius:8px;font:700 13px inherit;letter-spacing:1px;cursor:pointer;transition:.2s;box-shadow:0 0 16px #39ff8820}
+.btn:hover{background:#145b34;box-shadow:0 0 24px #39ff8860;transform:translateY(-1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.secondary{border-color:#315b43;background:#0a1710;color:#a9cbb7}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.platforms{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+.platform{border:1px solid var(--line);background:#08130d;color:#c6e6d1;padding:18px 8px;border-radius:10px;cursor:pointer;text-align:center;transition:.2s;font:inherit}
+.platform .emoji{display:block;font-size:26px;margin-bottom:10px}
+.platform.selected{border-color:var(--green);background:#10351f;box-shadow:0 0 18px #39ff8830;color:white}
+label{display:block;color:#a8c6b4;font-size:12px;margin:18px 0 8px}
+input{width:100%;padding:15px;background:#020704;border:1px solid #245239;border-radius:8px;color:#dffff0;font:14px Consolas,monospace;outline:none}
+input:focus{border-color:var(--green);box-shadow:0 0 0 3px #39ff8818}
+.hint{font-size:11px;color:#789786;margin-top:7px}
+.terminal{background:#020604;border:1px solid #1b482e;border-radius:10px;padding:16px;margin-top:20px;min-height:180px}
+.log{font-size:12px;color:#a9d7ba;margin:7px 0;line-height:1.5}
+.log b{color:var(--green);font-weight:400}
+.progress-wrap{height:9px;background:#14251a;border-radius:20px;overflow:hidden;margin:18px 0 8px}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#00a84e,#66ff9b);box-shadow:0 0 12px var(--green);transition:width .25s}
+.percent{color:var(--green);font-size:12px;text-align:right}
+.profile{display:grid;grid-template-columns:100px 1fr;gap:18px;align-items:center;padding:18px;background:#08140d;border:1px solid var(--line);border-radius:12px;margin:20px 0}
+.avatar{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;font-size:38px;background:radial-gradient(circle,#1c5935,#0a1a10);border:2px solid var(--green)}
+.profile h3{margin:0 0 7px;font-size:18px}.muted{color:#8caf99;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:#08140d;border:1px solid var(--line);padding:13px;border-radius:8px;text-align:center}
+.stat strong{display:block;color:var(--green);font-size:19px}.stat span{font-size:10px;color:#8caf99}
+.fake-messages{border:1px solid var(--line);border-radius:9px;padding:14px;margin-top:14px}
+.fake-messages div{font-size:12px;color:#b6d5c1;padding:8px 0;border-bottom:1px solid #183222}.fake-messages div:last-child{border:0}
+.stamp{display:inline-block;color:#ffe49a;border:1px solid #8a6b25;background:#241d0c;border-radius:5px;padding:7px 10px;font-size:11px;letter-spacing:1px}
+.success{color:var(--green);font-size:clamp(23px,5vw,36px);text-shadow:0 0 20px #39ff8866;margin:22px 0}
+.reveal{text-align:center;padding-top:38px;padding-bottom:45px}
+.reveal .laugh{font-size:58px}
+.reveal h2{font-size:clamp(28px,6vw,46px);color:#ffe49a;text-shadow:0 0 18px #ffc85740}
+.reveal p{font-size:clamp(14px,2.4vw,17px);color:#d2eadb}
+.reveal .subscribe{color:var(--green);font-weight:bold;font-size:clamp(16px,3vw,21px);line-height:1.5;margin:24px auto;max-width:680px}
+footer{text-align:center;color:#557765;font-size:10px;letter-spacing:1px;margin-top:18px}
+@media(max-width:600px){main{padding-top:18px}.platforms{grid-template-columns:repeat(2,1fr)}.profile{grid-template-columns:70px 1fr}.avatar{width:66px;height:66px;font-size:30px}.stats{gap:6px}.stat{padding:10px 4px}.stat strong{font-size:16px}.actions .btn{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand">MAC LAURIN TECH &amp; DIGITAL</div>
+  <h1>SOCIAL MEDIA<br>HACKING SIMULATOR</h1>
+  <div class="subtitle">ENVIRONNEMENT DE SIMULATION • BUILD 2026.11</div>
+</header>
+<div class="shell">
+  <div class="topbar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span>fake-terminal@maclaurin:~</span></div>
+
+  <section class="screen active" id="welcome">
+    <div class="kicker">[ SYSTÈME PRÊT ]</div>
+    <h2>Bienvenue dans le simulateur.</h2>
+    <p>Une expérience visuelle de cybersécurité conçue pour le divertissement. Choisis un réseau social, saisis un lien public et lance une opération entièrement fictive.</p>
+    <div class="notice">DÉMO SANS PIRATAGE : aucun compte n'est contacté, aucune donnée n'est récupérée et aucun mot de passe ne doit être saisi. Le lien fourni sert uniquement à la mise en scène locale.</div>
+    <button class="btn" onclick="go('select')">INITIALISER LA SIMULATION →</button>
+  </section>
+
+  <section class="screen" id="select">
+    <div class="kicker">[ ÉTAPE 01 / 03 ]</div>
+    <h2>Sélectionner une plateforme</h2>
+    <p>Choisis la cible fictive de ta démonstration.</p>
+    <div class="platforms">
+      <button class="platform selected" data-platform="Facebook" onclick="choose(this)"><span class="emoji">ⓕ</span>Facebook</button>
+      <button class="platform" data-platform="Instagram" onclick="choose(this)"><span class="emoji">◎</span>Instagram</button>
+      <button class="platform" data-platform="TikTok" onclick="choose(this)"><span class="emoji">♪</span>TikTok</button>
+      <button class="platform" data-platform="WhatsApp" onclick="choose(this)"><span class="emoji">◉</span>WhatsApp</button>
+    </div>
+    <div class="actions"><button class="btn secondary" onclick="go('welcome')">← RETOUR</button><button class="btn" onclick="go('profile')">CONTINUER →</button></div>
+  </section>
+
+  <section class="screen" id="profile">
+    <div class="kicker">[ ÉTAPE 02 / 03 ]</div>
+    <h2>Entrer un lien de profil public</h2>
+    <p>Plateforme sélectionnée : <strong id="chosenName" style="color:var(--green)">Facebook</strong></p>
+    <label for="profileUrl">URL DU PROFIL (FACULTATIF)</label>
+    <input id="profileUrl" type="url" placeholder="https://www.facebook.com/nom.public" autocomplete="off">
+    <div class="hint">Le lien n'est ni envoyé à un serveur ni analysé. Évite de saisir des informations privées.</div>
+    <div class="notice">La simulation affichera un profil généré au hasard, sans rapport avec le propriétaire du lien.</div>
+    <div class="actions"><button class="btn secondary" onclick="go('select')">← RETOUR</button><button class="btn" onclick="startAnalysis()">LANCER L'ANALYSE</button></div>
+    <div id="urlError" class="hint" style="color:#ff8888" aria-live="polite"></div>
+  </section>
+
+  <section class="screen" id="analysis">
+    <div class="kicker">[ ÉTAPE 03 / 03 ]</div>
+    <h2>Analyse en cours...</h2>
+    <p id="analysisPlatform">Plateforme : Facebook</p>
+    <div class="terminal" id="terminal" aria-live="polite">
+      <div class="log"><b>&gt;</b> En attente de l'initialisation...</div>
+    </div>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+    <div class="percent" id="percent">0%</div>
+  </section>
+
+  <section class="screen" id="report">
+    <div class="kicker">[ RAPPORT DE SIMULATION ]</div>
+    <span class="stamp">DONNÉES FICTIVES — SIMULATION</span>
+    <div class="success">PIRATAGE SIMULÉ RÉUSSI !</div>
+    <p>Le scénario est terminé. Les éléments ci-dessous ont été inventés par le simulateur et ne proviennent d'aucun compte réel.</p>
+    <div class="profile">
+      <div class="avatar">👤</div>
+      <div><h3 id="fakeName">Alex Morgan</h3><div class="muted" id="fakeHandle">@demo_profile</div><div class="muted" id="reportPlatform">Plateforme : Facebook</div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><strong id="followers">12.8K</strong><span>ABONNÉS FICTIFS</span></div>
+      <div class="stat"><strong>486</strong><span>PUBLICATIONS FICTIVES</span></div>
+      <div class="stat"><strong>92%</strong><span>INDICE IMAGINAIRE</span></div>
+    </div>
+    <div class="fake-messages"><div><b style="color:var(--green)">MESSAGE SIMULÉ 01 :</b> Salut ! On se retrouve demain ?</div><div><b style="color:var(--green)">MESSAGE SIMULÉ 02 :</b> Merci pour ton aide !</div><div><b style="color:var(--green)">MESSAGE SIMULÉ 03 :</b> À très bientôt !</div></div>
+    <div class="actions"><button class="btn" onclick="reveal()">OUVRIR LE COMPTE →</button><button class="btn secondary" onclick="resetDemo()">RECOMMENCER</button></div>
+  </section>
+
+  <section class="screen reveal" id="reveal">
+    <div class="laugh">😂</div>
+    <div class="kicker">[ RÉVÉLATION FINALE ]</div>
+    <h2>PRANK RÉUSSI !</h2>
+    <p><strong>TU PENSAIS VRAIMENT PIRATER UN COMPTE ?</strong></p>
+    <p>C'ÉTAIT JUSTE UNE SIMULATION !</p>
+    <p style="color:#ffe49a;font-weight:bold">MAIS ATTENDS...</p>
+    <p>TU N'ES TOUJOURS PAS ABONNÉ À</p>
+    <p style="color:var(--green);font-weight:bold;font-size:21px">MAC LAURIN TECH &amp; DIGITAL ?</p>
+    <p>TU VIENS CHERCHER LES ASTUCES MAIS TU N'ES PAS ABONNÉ ?</p>
+    <div class="subscribe">ABONNE-TOI MAINTENANT POUR PLUS D'ASTUCES SUR L'IA, LA TECHNOLOGIE ET LE NUMÉRIQUE !</div>
+    <div class="stamp">STATUT : PROMPT RÉUSSI !</div>
+    <div class="actions" style="justify-content:center"><button class="btn" onclick="resetDemo()">REJOUER LA SIMULATION ↻</button></div>
+  </section>
+</div>
+<footer>FAKE HACKING SIMULATOR • CRÉÉ PAR MAC LAURIN • DÉMO LOCALE ET SANS COLLECTE</footer>
+</main>
+<script>
+let selectedPlatform = "Facebook";
+let timers = [];
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='profile') document.getElementById('chosenName').textContent=selectedPlatform;
+}
+function choose(button){
+  document.querySelectorAll('.platform').forEach(b=>b.classList.remove('selected'));
+  button.classList.add('selected');
+  selectedPlatform=button.dataset.platform;
+}
+function startAnalysis(){
+  const input=document.getElementById('profileUrl');
+  const error=document.getElementById('urlError');
+  const value=input.value.trim();
+  error.textContent='';
+  if(value){
+    try{
+      const parsed=new URL(value);
+      if(!['http:','https:'].includes(parsed.protocol)) throw new Error();
+    }catch(e){error.textContent='Entre une URL valide commençant par https:// ou laisse le champ vide.';return;}
+  }
+  document.getElementById('analysisPlatform').textContent='Plateforme sélectionnée : '+selectedPlatform;
+  document.getElementById('terminal').innerHTML='';
+  document.getElementById('progress').style.width='0%';
+  document.getElementById('percent').textContent='0%';
+  go('analysis');
+  const steps=[
+    '[01] INITIALISATION DU SYSTÈME...',
+    '[02] CONNEXION AU SERVEUR DE SIMULATION...',
+    '[03] ANALYSE LOCALE DU FORMAT DE L’URL...',
+    '[04] SCAN DU PROFIL FICTIF...',
+    '[05] GÉNÉRATION DU RAPPORT...',
+    '[06] FINALISATION...'
+  ];
+  let i=0;
+  function next(){
+    if(i>=steps.length){
+      const bar=document.getElementById('progress');bar.style.width='100%';
+      document.getElementById('percent').textContent='100%';
+      setTimeout(showReport,650);return;
+    }
+    const terminal=document.getElementById('terminal');
+    const line=document.createElement('div');line.className='log';
+    line.innerHTML='<b>&gt;</b> '+steps[i]+' <span style="color:#39ff88">OK</span>';
+    terminal.appendChild(line);
+    const pct=Math.round(((i+1)/steps.length)*100);
+    document.getElementById('progress').style.width=pct+'%';
+    document.getElementById('percent').textContent=pct+'%';
+    i++;timers.push(setTimeout(next,650+Math.random()*450));
+  }
+  timers.push(setTimeout(next,350));
+}
+function showReport(){
+  const names=['Alex Morgan','Sam Rivera','Jordan Lee','Taylor Quinn','Chris Nova'];
+  const handles=['@demo_user','@digital_guest','@sample_account','@profile_test','@simulated_id'];
+  document.getElementById('fakeName').textContent=names[Math.floor(Math.random()*names.length)];
+  document.getElementById('fakeHandle').textContent=handles[Math.floor(Math.random()*handles.length)];
+  document.getElementById('followers').textContent=['3.2K','12.8K','840','24.1K','5.6K'][Math.floor(Math.random()*5)];
+  document.getElementById('reportPlatform').textContent='Plateforme : '+selectedPlatform;
+  go('report');
+}
+function reveal(){go('reveal');}
+function resetDemo(){
+  timers.forEach(clearTimeout);timers=[];
+  document.getElementById('profileUrl').value='';
+  document.getElementById('urlError').textContent='';
+  selectedPlatform='Facebook';
+  document.querySelectorAll('.platform').forEach(b=>b.classList.toggle('selected',b.dataset.platform==='Facebook'));
+  go('welcome');
+}
+</script>
+</body>
+</html>
